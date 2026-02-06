@@ -11,6 +11,12 @@ interface SidebarProps {
 
 const AGENT_EMOJIS = ['🦖', '🔍', '🎨', '⚡', '🧪', '🐚', '🦀', '🌊', '🐙', '🦑'];
 
+const PROVIDER_BADGE: Record<string, { emoji: string; color: string }> = {
+  anthropic: { emoji: '🟣', color: 'text-purple-400' },
+  openai: { emoji: '🟢', color: 'text-green-400' },
+  google: { emoji: '🔵', color: 'text-blue-400' },
+};
+
 function getEmoji(index: number): string {
   return AGENT_EMOJIS[index % AGENT_EMOJIS.length];
 }
@@ -152,7 +158,9 @@ export function Sidebar({ sessions, selectedSession, onSelectSession, onSpawnAge
                         onClick={() => onSelectSession(session.id)}
                       >
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot(session.status)}`} />
-                        <span className="text-xs shrink-0">{getEmoji(i)}</span>
+                        <span className="text-xs shrink-0" title={session.provider || 'unknown'}>
+                          {session.provider ? PROVIDER_BADGE[session.provider]?.emoji || getEmoji(i) : getEmoji(i)}
+                        </span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1">
                             <span className="font-medium truncate">agent-{i + 1}</span>

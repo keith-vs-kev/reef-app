@@ -31,19 +31,18 @@ export const reefApi = {
       return { ok: false, error: err.message };
     }
   },
-  spawn: async (task: string, model?: string) => {
+  spawn: async (task: string, opts?: { provider?: string; model?: string; workdir?: string; backend?: string }) => {
     try {
-      const body: any = { task };
-      if (model) body.model = model;
+      const body: any = { task, ...opts };
       const data = await api('POST', '/sessions', body);
       return { ok: true, data };
     } catch (err: any) {
       return { ok: false, error: err.message };
     }
   },
-  history: async (sessionId: string, lines?: number) => {
+  history: async (sessionId: string, _lines?: number) => {
     try {
-      const data = await api('GET', `/sessions/${sessionId}/history?lines=${lines || 500}`);
+      const data = await api('GET', `/sessions/${sessionId}/output`);
       return { ok: true, data };
     } catch (err: any) {
       return { ok: false, error: err.message };

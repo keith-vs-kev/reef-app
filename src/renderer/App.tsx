@@ -29,12 +29,16 @@ export function App() {
     document.documentElement.className = theme;
   }, [theme]);
 
-  // Cmd+K
+  // Cmd+K / Cmd+N
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setPaletteOpen(prev => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault();
+        setSpawnOpen(prev => !prev);
       }
     };
     window.addEventListener('keydown', handler);
@@ -73,10 +77,10 @@ export function App() {
   }, [refresh]);
 
   // Spawn agent
-  const handleSpawn = useCallback(async (task: string, model?: string) => {
+  const handleSpawn = useCallback(async (task: string, opts?: { provider?: string; model?: string; workdir?: string }) => {
     setSpawning(true);
     try {
-      const result = await api.spawn(task, model);
+      const result = await api.spawn(task, opts);
       if (result.ok && result.data?.session) {
         setSessions(prev => [...prev, result.data!.session]);
         setSelectedSession(result.data.session.id);

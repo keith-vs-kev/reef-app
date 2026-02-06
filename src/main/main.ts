@@ -86,10 +86,9 @@ function setupIPC() {
   });
 
   // Spawn new session
-  ipcMain.handle('reef:spawn', async (_event, task: string, model?: string) => {
+  ipcMain.handle('reef:spawn', async (_event, task: string, opts?: { provider?: string; model?: string; workdir?: string; backend?: string }) => {
     try {
-      const body: any = { task };
-      if (model) body.model = model;
+      const body: any = { task, ...opts };
       const data = await reefApi('POST', '/sessions', body);
       return { ok: true, data };
     } catch (err: any) {
@@ -100,7 +99,7 @@ function setupIPC() {
   // Get session history (tmux output)
   ipcMain.handle('reef:history', async (_event, sessionId: string, lines?: number) => {
     try {
-      const data = await reefApi('GET', `/sessions/${sessionId}/history?lines=${lines || 500}`);
+      const data = await reefApi('GET', `/sessions/${sessionId}/output`);
       return { ok: true, data };
     } catch (err: any) {
       return { ok: false, error: err.message };

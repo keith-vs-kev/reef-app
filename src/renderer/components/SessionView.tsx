@@ -233,39 +233,81 @@ export function SessionView({ session, sessionIndex }: SessionViewProps) {
 
   const emoji = AGENT_EMOJIS[sessionIndex % AGENT_EMOJIS.length];
 
+  const providerBadge: Record<string, { emoji: string; label: string; color: string }> = {
+    anthropic: { emoji: '🟣', label: 'Anthropic', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+    openai: { emoji: '🟢', label: 'OpenAI', color: 'bg-green-500/10 text-green-400 border-green-500/20' },
+    google: { emoji: '🔵', label: 'Google', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  };
+
+  const prov = session.provider ? providerBadge[session.provider] : null;
+
+  const handleKill = async () => {
+    if (!confirm('Kill this agent session?')) return;
+    try {
+      await api.kill(session.id);
+    } catch {}
+  };
+
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--reef-bg)' }}>
       {/* Header */}
       <div className="flex items-center gap-4 px-5 py-3 border-b border-reef-border" style={{ background: 'var(--reef-bg-elevated)' }}>
         <span className="text-3xl">{emoji}</span>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <span className="text-[15px] font-semibold text-reef-text-bright">agent-{sessionIndex + 1}</span>
             <StatusPill status={session.status} />
+            {prov && (
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${prov.color}`}>
+                {prov.emoji} {prov.label}
+              </span>
+            )}
+            {session.model && (
+              <span className="text-[10px] text-reef-text-muted bg-reef-border/30 px-2 py-0.5 rounded-full">
+                {session.model}
+              </span>
+            )}
+            {session.backend && (
+              <span className="text-[10px] text-reef-text-muted bg-reef-border/30 px-2 py-0.5 rounded-full">
+                {session.backend}
+              </span>
+            )}
           </div>
-          <div className="text-[12px] text-reef-text-dim truncate max-w-lg mt-0.5">
+          <div className="text-[12px] text-reef-text-dim mt-0.5">
             {session.task}
           </div>
         </div>
 
-        {/* View mode toggle */}
-        <div className="flex items-center gap-1 bg-reef-border/30 rounded-lg p-0.5">
-          <button
-            onClick={() => setViewMode('chat')}
-            className={`px-3 py-1 text-[11px] rounded-md font-medium transition-all duration-150 ${
-              viewMode === 'chat' ? 'bg-reef-accent text-white' : 'text-reef-text-dim hover:text-reef-text'
-            }`}
-          >
-            Chat
-          </button>
-          <button
-            onClick={() => setViewMode('raw')}
-            className={`px-3 py-1 text-[11px] rounded-md font-medium transition-all duration-150 ${
-              viewMode === 'raw' ? 'bg-reef-accent text-white' : 'text-reef-text-dim hover:text-reef-text'
-            }`}
-          >
-            Terminal
-          </button>
+        <div className="flex items-center gap-2">
+          {/* Kill button */}
+          {session.status === 'running' && (
+            <button
+              onClick={handleKill}
+              className="h-8 px-3 rounded-lg text-[11px] font-medium bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all duration-150"
+            >
+              ⏹ Kill
+            </button>
+          )}
+
+          {/* View mode toggle */}
+          <div className="flex items-center gap-1 bg-reef-border/30 rounded-lg p-0.5">
+            <button
+              onClick={() => setViewMode('chat')}
+              className={`px-3 py-1 text-[11px] rounded-md font-medium transition-all duration-150 ${
+                viewMode === 'chat' ? 'bg-reef-accent text-white' : 'text-reef-text-dim hover:text-reef-text'
+              }`}
+            >
+              Chat
+            </button>
+            <button
+              onClick={() => setViewMode('raw')}
+              className={`px-3 py-1 text-[11px] rounded-md font-medium transition-all duration-150 ${
+                viewMode === 'raw' ? 'bg-reef-accent text-white' : 'text-reef-text-dim hover:text-reef-text'
+              }`}
+            >
+              Terminal
+            </button>
+          </div>
         </div>
       </div>
 
