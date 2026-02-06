@@ -1,28 +1,33 @@
-import React from 'react';
-import { ReefSession } from '../types';
+import React from 'react'
+import { ReefSession } from '../types'
 
 interface ActivityFeedProps {
-  sessions: ReefSession[];
-  connected: boolean;
-  onSelectSession: (id: string) => void;
-  onSpawnAgent: () => void;
+  sessions: ReefSession[]
+  connected: boolean
+  onSelectSession: (id: string) => void
+  onSpawnAgent: () => void
 }
 
-const AGENT_EMOJIS = ['🦖', '🔍', '🎨', '⚡', '🧪', '🐚', '🦀', '🌊', '🐙', '🦑'];
+const AGENT_EMOJIS = ['🦖', '🔍', '🎨', '⚡', '🧪', '🐚', '🦀', '🌊', '🐙', '🦑']
 
 function timeAgo(ts: string): string {
-  const diff = Date.now() - new Date(ts).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  const diff = Date.now() - new Date(ts).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  return `${Math.floor(hours / 24)}d ago`
 }
 
-export function ActivityFeed({ sessions, connected, onSelectSession, onSpawnAgent }: ActivityFeedProps) {
-  const active = sessions.filter(s => s.status === 'running');
-  const recent = sessions.filter(s => s.status !== 'running').slice(0, 8);
+export function ActivityFeed({
+  sessions,
+  connected,
+  onSelectSession,
+  onSpawnAgent,
+}: ActivityFeedProps) {
+  const active = sessions.filter((s) => s.status === 'running')
+  const recent = sessions.filter((s) => s.status !== 'running').slice(0, 8)
 
   return (
     <div className="flex items-center justify-center h-full">
@@ -39,7 +44,9 @@ export function ActivityFeed({ sessions, connected, onSelectSession, onSpawnAgen
               : 'Connecting to reef-core…'}
           </p>
           <p className="text-[11px] text-reef-text-muted mt-2">
-            Press <kbd className="bg-reef-border/50 px-1.5 py-0.5 rounded font-mono text-[10px]">⌘K</kbd> to search
+            Press{' '}
+            <kbd className="bg-reef-border/50 px-1.5 py-0.5 rounded font-mono text-[10px]">⌘K</kbd>{' '}
+            to search
           </p>
         </div>
 
@@ -50,27 +57,37 @@ export function ActivityFeed({ sessions, connected, onSelectSession, onSpawnAgen
               Active Now
             </h2>
             <div className="space-y-1">
-              {active.map((s, i) => {
-                const globalIndex = sessions.indexOf(s);
+              {active.map((s, _i) => {
+                const globalIndex = sessions.indexOf(s)
                 return (
                   <button
                     key={s.id}
                     onClick={() => onSelectSession(s.id)}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-transparent hover:bg-reef-border/20 hover:border-reef-border transition-all duration-150 text-left group"
                   >
-                    <span className="text-xl">{AGENT_EMOJIS[globalIndex % AGENT_EMOJIS.length]}</span>
+                    <span className="text-xl">
+                      {AGENT_EMOJIS[globalIndex % AGENT_EMOJIS.length]}
+                    </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-medium text-reef-text-bright">agent-{globalIndex + 1}</span>
+                        <span className="text-[13px] font-medium text-reef-text-bright">
+                          agent-{globalIndex + 1}
+                        </span>
                         <span className="w-2 h-2 rounded-full status-dot-active" />
                       </div>
                       <div className="text-[11px] text-reef-text-dim truncate">{s.task}</div>
                     </div>
-                    <svg className="w-4 h-4 text-reef-text-muted opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg
+                      className="w-4 h-4 text-reef-text-muted opacity-0 group-hover:opacity-100 transition-opacity"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
                       <path d="m9 18 6-6-6-6" />
                     </svg>
                   </button>
-                );
+                )
               })}
             </div>
           </div>
@@ -96,24 +113,30 @@ export function ActivityFeed({ sessions, connected, onSelectSession, onSpawnAgen
             </h2>
             <div className="space-y-0.5">
               {recent.map((s) => {
-                const globalIndex = sessions.indexOf(s);
+                const globalIndex = sessions.indexOf(s)
                 return (
                   <button
                     key={s.id}
                     onClick={() => onSelectSession(s.id)}
                     className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-reef-border/20 transition-colors duration-150 text-left"
                   >
-                    <span className="text-base opacity-60">{AGENT_EMOJIS[globalIndex % AGENT_EMOJIS.length]}</span>
+                    <span className="text-base opacity-60">
+                      {AGENT_EMOJIS[globalIndex % AGENT_EMOJIS.length]}
+                    </span>
                     <span className="text-[12px] text-reef-text-dim flex-1 truncate">{s.task}</span>
-                    {s.status === 'error' && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
-                    <span className="text-[10px] text-reef-text-muted">{timeAgo(s.updated_at)}</span>
+                    {s.status === 'error' && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    )}
+                    <span className="text-[10px] text-reef-text-muted">
+                      {timeAgo(s.updated_at)}
+                    </span>
                   </button>
-                );
+                )
               })}
             </div>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }

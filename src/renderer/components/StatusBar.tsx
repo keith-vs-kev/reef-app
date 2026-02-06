@@ -1,21 +1,23 @@
-import React from 'react';
-import { ReefSession } from '../types';
+import React from 'react'
+import { ReefSession } from '../types'
 
 interface StatusBarProps {
-  sessions: ReefSession[];
-  connected: boolean;
-  uptime?: number;
+  sessions: ReefSession[]
+  connected: boolean
+  uptime?: number
 }
 
 export function StatusBar({ sessions, connected, uptime }: StatusBarProps) {
-  const active = sessions.filter(s => s.status === 'running').length;
-  const total = sessions.length;
+  const active = sessions.filter((s) => s.status === 'running').length
+  const total = sessions.length
 
   return (
     <div className="flex items-center h-7 px-3 bg-reef-bg-elevated border-t border-reef-border text-[11px] gap-1 shrink-0 select-none">
       {/* Connection */}
       <div className="flex items-center gap-1.5 px-2 py-0.5 rounded">
-        <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-500' : 'bg-red-500'}`} />
+        <span
+          className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-500' : 'bg-red-500'}`}
+        />
         <span className="text-reef-text-dim font-medium">
           {connected ? 'reef-core' : 'disconnected'}
         </span>
@@ -48,5 +50,5 @@ export function StatusBar({ sessions, connected, uptime }: StatusBarProps) {
         <span>agent{total !== 1 ? 's' : ''}</span>
       </div>
     </div>
-  );
+  )
 }
