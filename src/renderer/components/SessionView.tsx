@@ -16,6 +16,7 @@ import { ProviderIcon } from './Icons'
 interface SessionViewProps {
   session: ReefSession
   sessionIndex: number
+  wsOutput?: string[]
 }
 
 // ── Parse tmux output into structured blocks ──
@@ -241,7 +242,7 @@ function OutputBlockView({ block }: { block: OutputBlock }) {
 }
 
 // ── Main Session View ──
-export function SessionView({ session, sessionIndex }: SessionViewProps) {
+export function SessionView({ session, sessionIndex, wsOutput }: SessionViewProps) {
   const api = useReefApi()
   const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -253,18 +254,23 @@ export function SessionView({ session, sessionIndex }: SessionViewProps) {
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const [showKillConfirm, setShowKillConfirm] = useState(false)
 
-  // Poll for history
+  // Load initial output via HTTP, then use WS for real-time updates
+  const httpLoadedRef = useRef(false)
+  const [httpOutput, setHttpOutput] = useState('')
+
   useEffect(() => {
     let active = true
     setLoading(true)
-    setRawOutput('')
+    setHttpOutput('')
+    httpLoadedRef.current = false
 
-    async function poll() {
+    async function loadInitial() {
       if (!active) return
       try {
         const result = await api.history(session.id, 1000)
         if (active && result.ok && result.data) {
-          setRawOutput(result.data.output || '')
+          setHttpOutput(result.data.output || '')
+          httpLoadedRef.current = true
         }
       } catch {
         /* ignore */
@@ -272,13 +278,23 @@ export function SessionView({ session, sessionIndex }: SessionViewProps) {
       setLoading(false)
     }
 
-    poll()
-    const interval = setInterval(poll, 2000)
+    loadInitial()
     return () => {
       active = false
-      clearInterval(interval)
     }
   }, [session.id, api])
+
+  // Merge HTTP initial output + WS streaming output
+  useEffect(() => {
+    const wsText = wsOutput ? wsOutput.join('\n') : ''
+    if (httpOutput && wsText) {
+      // HTTP has the full history; WS has new lines since connect.
+      // Use HTTP as base, WS output may partially overlap, so just use the longer one
+      setRawOutput(wsText.length > httpOutput.length ? wsText : httpOutput)
+    } else {
+      setRawOutput(httpOutput || wsText)
+    }
+  }, [httpOutput, wsOutput])
 
   // Auto-scroll
   useEffect(() => {

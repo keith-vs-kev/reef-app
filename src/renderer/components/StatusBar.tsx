@@ -1,26 +1,40 @@
 import React from 'react'
 import { ReefSession } from '../types'
+import type { WsConnectionState } from '../ws-client'
 
 interface StatusBarProps {
   sessions: ReefSession[]
   connected: boolean
+  wsState?: WsConnectionState
   uptime?: number
 }
 
-export function StatusBar({ sessions, connected, uptime }: StatusBarProps) {
+export function StatusBar({ sessions, connected, wsState, uptime }: StatusBarProps) {
   const active = sessions.filter((s) => s.status === 'running').length
   const total = sessions.length
+  const state = wsState || (connected ? 'connected' : 'disconnected')
 
   return (
     <div className="flex items-center h-7 px-3 bg-reef-bg-elevated border-t border-reef-border text-[11px] gap-1 shrink-0 select-none">
       {/* Connection */}
       <div className="flex items-center gap-1.5 px-2 py-0.5 rounded">
         <span
-          className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-emerald-500' : 'bg-red-500'}`}
+          className={`w-1.5 h-1.5 rounded-full ${
+            state === 'connected'
+              ? 'bg-emerald-500'
+              : state === 'connecting'
+                ? 'bg-amber-500 animate-pulse'
+                : 'bg-red-500'
+          }`}
         />
         <span className="text-reef-text-dim font-medium">
-          {connected ? 'reef-core' : 'disconnected'}
+          {state === 'connected'
+            ? 'reef-core'
+            : state === 'connecting'
+              ? 'connecting…'
+              : 'disconnected'}
         </span>
+        {state === 'connected' && <span className="text-reef-text-muted ml-0.5">ws</span>}
       </div>
 
       {/* Active */}

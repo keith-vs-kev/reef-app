@@ -1,14 +1,28 @@
 import React from 'react'
 import { Search, Sun, Moon, Shell } from 'lucide-react'
+import type { WsConnectionState } from '../ws-client'
 
 interface TopBarProps {
   connected: boolean
+  wsState?: WsConnectionState
   theme: 'dark' | 'light'
   onToggleTheme: () => void
   onOpenPalette: () => void
 }
 
-export function TopBar({ connected, theme, onToggleTheme, onOpenPalette }: TopBarProps) {
+const WS_STATE_CONFIG: Record<
+  WsConnectionState,
+  { color: string; label: string; animate: boolean }
+> = {
+  connected: { color: 'bg-emerald-500', label: 'Connected', animate: false },
+  connecting: { color: 'bg-amber-500', label: 'Connecting…', animate: true },
+  disconnected: { color: 'bg-red-500', label: 'Disconnected', animate: true },
+}
+
+export function TopBar({ connected, wsState, theme, onToggleTheme, onOpenPalette }: TopBarProps) {
+  const state = wsState || (connected ? 'connected' : 'disconnected')
+  const cfg = WS_STATE_CONFIG[state]
+
   return (
     <div className="flex items-center h-12 px-4 bg-reef-sidebar border-b border-reef-border drag-region">
       {/* App branding */}
@@ -22,11 +36,9 @@ export function TopBar({ connected, theme, onToggleTheme, onOpenPalette }: TopBa
       {/* Connection status */}
       <div className="flex items-center gap-1.5 no-drag">
         <span
-          className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}
+          className={`w-2 h-2 rounded-full ${cfg.color} ${cfg.animate ? 'animate-pulse' : ''}`}
         />
-        <span className="text-[13px] text-reef-text-dim">
-          {connected ? 'Connected' : 'Disconnected'}
-        </span>
+        <span className="text-[13px] text-reef-text-dim">{cfg.label}</span>
       </div>
 
       <div className="flex-1" />
