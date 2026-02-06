@@ -1,5 +1,7 @@
 import React from 'react'
 import { ReefSession } from '../types'
+import { Shell, ChevronRight, Rocket, WifiOff, RefreshCw } from 'lucide-react'
+import { ProviderIcon } from './Icons'
 
 interface ActivityFeedProps {
   sessions: ReefSession[]
@@ -7,8 +9,6 @@ interface ActivityFeedProps {
   onSelectSession: (id: string) => void
   onSpawnAgent: () => void
 }
-
-const AGENT_EMOJIS = ['🦖', '🔍', '🎨', '⚡', '🧪', '🐚', '🦀', '🌊', '🐙', '🦑']
 
 function timeAgo(ts: string): string {
   const diff = Date.now() - new Date(ts).getTime()
@@ -34,20 +34,40 @@ export function ActivityFeed({
       <div className="w-full max-w-lg px-6">
         {/* Hero */}
         <div className="text-center mb-10">
-          <div className="text-6xl mb-4 opacity-90">🐚</div>
+          <Shell className="w-14 h-14 text-reef-accent mx-auto mb-4 opacity-90" />
           <h1 className="text-2xl font-semibold text-reef-text-bright tracking-tight mb-1">
             The Reef
           </h1>
-          <p className="text-sm text-reef-text-dim">
-            {connected
-              ? `${sessions.length} agents · ${active.length} active`
-              : 'Connecting to reef-core…'}
-          </p>
-          <p className="text-[11px] text-reef-text-muted mt-2">
-            Press{' '}
-            <kbd className="bg-reef-border/50 px-1.5 py-0.5 rounded font-mono text-[10px]">⌘K</kbd>{' '}
-            to search
-          </p>
+          {connected ? (
+            <p className="text-[13px] text-reef-text-dim">
+              {sessions.length} agents · {active.length} active
+            </p>
+          ) : (
+            <div className="mt-4 p-4 rounded-lg border border-red-500/20 bg-red-500/5">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <WifiOff className="w-4 h-4 text-red-400" />
+                <span className="text-[13px] font-medium text-red-400">
+                  Unable to connect to reef-core
+                </span>
+              </div>
+              <p className="text-[11px] text-reef-text-dim mb-3">
+                Check that reef-core is running on ws://localhost:7777
+              </p>
+              <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] text-reef-text-dim hover:text-reef-text border border-reef-border hover:bg-reef-border/20 transition-all duration-150">
+                <RefreshCw className="w-3 h-3" />
+                Retry
+              </button>
+            </div>
+          )}
+          {connected && (
+            <p className="text-[11px] text-reef-text-muted mt-2">
+              Press{' '}
+              <kbd className="bg-reef-border/50 px-1.5 py-0.5 rounded font-mono text-[11px]">
+                ⌘K
+              </kbd>{' '}
+              to search
+            </p>
+          )}
         </div>
 
         {/* Active agents */}
@@ -57,7 +77,7 @@ export function ActivityFeed({
               Active Now
             </h2>
             <div className="space-y-1">
-              {active.map((s, _i) => {
+              {active.map((s) => {
                 const globalIndex = sessions.indexOf(s)
                 return (
                   <button
@@ -65,9 +85,7 @@ export function ActivityFeed({
                     onClick={() => onSelectSession(s.id)}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-transparent hover:bg-reef-border/20 hover:border-reef-border transition-all duration-150 text-left group"
                   >
-                    <span className="text-xl">
-                      {AGENT_EMOJIS[globalIndex % AGENT_EMOJIS.length]}
-                    </span>
+                    <ProviderIcon provider={s.provider} className="w-5 h-5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-[13px] font-medium text-reef-text-bright">
@@ -77,15 +95,7 @@ export function ActivityFeed({
                       </div>
                       <div className="text-[11px] text-reef-text-dim truncate">{s.task}</div>
                     </div>
-                    <svg
-                      className="w-4 h-4 text-reef-text-muted opacity-0 group-hover:opacity-100 transition-opacity"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
+                    <ChevronRight className="w-4 h-4 text-reef-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 )
               })}
@@ -98,9 +108,10 @@ export function ActivityFeed({
           <div className="text-center">
             <button
               onClick={onSpawnAgent}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-reef-accent text-white text-sm font-medium hover:bg-reef-accent-hover transition-all duration-150"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-reef-accent text-white text-[13px] font-medium hover:bg-reef-accent-hover transition-all duration-150"
             >
-              🦖 Spawn Your First Agent
+              <Rocket className="w-4 h-4" />
+              Spawn Your First Agent
             </button>
           </div>
         )}
@@ -113,21 +124,18 @@ export function ActivityFeed({
             </h2>
             <div className="space-y-0.5">
               {recent.map((s) => {
-                const globalIndex = sessions.indexOf(s)
                 return (
                   <button
                     key={s.id}
                     onClick={() => onSelectSession(s.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-reef-border/20 transition-colors duration-150 text-left"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-reef-border/20 transition-colors duration-150 text-left"
                   >
-                    <span className="text-base opacity-60">
-                      {AGENT_EMOJIS[globalIndex % AGENT_EMOJIS.length]}
-                    </span>
-                    <span className="text-[12px] text-reef-text-dim flex-1 truncate">{s.task}</span>
+                    <ProviderIcon provider={s.provider} className="w-4 h-4 opacity-60" />
+                    <span className="text-[13px] text-reef-text-dim flex-1 truncate">{s.task}</span>
                     {s.status === 'error' && (
                       <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                     )}
-                    <span className="text-[10px] text-reef-text-muted">
+                    <span className="text-[11px] text-reef-text-muted">
                       {timeAgo(s.updated_at)}
                     </span>
                   </button>

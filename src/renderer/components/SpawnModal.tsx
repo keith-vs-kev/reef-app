@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { Shell, Loader2 } from 'lucide-react'
+import { ProviderCardIcon } from './Icons'
 
 interface SpawnModalProps {
   open: boolean
@@ -11,7 +13,6 @@ const PROVIDERS = [
   {
     id: 'anthropic',
     label: 'Anthropic',
-    emoji: '🟣',
     color: 'border-purple-500/40 bg-purple-500/5 hover:bg-purple-500/10',
     activeColor: 'border-purple-500 bg-purple-500/15 ring-1 ring-purple-500/30',
     defaultModel: 'claude-sonnet-4-20250514',
@@ -19,7 +20,6 @@ const PROVIDERS = [
   {
     id: 'openai',
     label: 'OpenAI',
-    emoji: '🟢',
     color: 'border-green-500/40 bg-green-500/5 hover:bg-green-500/10',
     activeColor: 'border-green-500 bg-green-500/15 ring-1 ring-green-500/30',
     defaultModel: 'gpt-4o',
@@ -27,7 +27,6 @@ const PROVIDERS = [
   {
     id: 'google',
     label: 'Google',
-    emoji: '🔵',
     color: 'border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10',
     activeColor: 'border-blue-500 bg-blue-500/15 ring-1 ring-blue-500/30',
     defaultModel: 'gemini-2.5-pro',
@@ -60,17 +59,6 @@ export function SpawnModal({ open, onClose, onSpawn, spawning }: SpawnModalProps
     return () => window.removeEventListener('keydown', handler)
   }, [open, onClose])
 
-  // Cmd+N global shortcut
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
-        e.preventDefault()
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [])
-
   if (!open) return null
 
   const selectedProvider = PROVIDERS.find((p) => p.id === provider)!
@@ -97,11 +85,11 @@ export function SpawnModal({ open, onClose, onSpawn, spawning }: SpawnModalProps
       >
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-reef-border">
-          <span className="text-2xl">🐚</span>
+          <Shell className="w-6 h-6 text-reef-accent" />
           <div>
-            <h2 className="text-sm font-semibold text-reef-text-bright">Spawn New Agent</h2>
+            <h2 className="text-[15px] font-semibold text-reef-text-bright">Spawn New Agent</h2>
             <p className="text-[11px] text-reef-text-dim">
-              Choose a provider and describe the task
+              Select an AI provider and describe what you need done
             </p>
           </div>
         </div>
@@ -121,13 +109,13 @@ export function SpawnModal({ open, onClose, onSpawn, spawning }: SpawnModalProps
                     setProvider(p.id)
                     setModel('')
                   }}
-                  className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border text-center transition-all duration-150 ${
+                  className={`flex flex-col items-center gap-2 py-3 px-2 rounded-lg border text-center transition-all duration-150 ${
                     provider === p.id ? p.activeColor : p.color
                   }`}
                 >
-                  <span className="text-xl">{p.emoji}</span>
-                  <span className="text-[11px] font-medium text-reef-text-bright">{p.label}</span>
-                  <span className="text-[9px] text-reef-text-muted">{p.defaultModel}</span>
+                  <ProviderCardIcon provider={p.id} className="w-6 h-6" />
+                  <span className="text-[13px] font-medium text-reef-text-bright">{p.label}</span>
+                  <span className="text-[11px] text-reef-text-muted">{p.defaultModel}</span>
                 </button>
               ))}
             </div>
@@ -147,7 +135,7 @@ export function SpawnModal({ open, onClose, onSpawn, spawning }: SpawnModalProps
               }}
               placeholder="What should this agent work on?"
               rows={3}
-              className="w-full px-4 py-3 text-sm bg-reef-bg border border-reef-border rounded-xl text-reef-text-bright placeholder-reef-text-dim focus:border-reef-accent focus:ring-1 focus:ring-reef-accent/20 focus:outline-none transition-all duration-150 resize-none"
+              className="w-full px-4 py-3 text-[13px] bg-reef-bg border border-reef-border rounded-lg text-reef-text-bright placeholder-reef-text-dim focus:border-reef-accent focus:ring-1 focus:ring-reef-accent/20 focus:outline-none transition-all duration-150 resize-none"
             />
           </div>
 
@@ -164,7 +152,7 @@ export function SpawnModal({ open, onClose, onSpawn, spawning }: SpawnModalProps
               value={model}
               onChange={(e) => setModel(e.target.value)}
               placeholder={selectedProvider.defaultModel}
-              className="w-full h-10 px-4 text-sm bg-reef-bg border border-reef-border rounded-xl text-reef-text-bright placeholder-reef-text-dim focus:border-reef-accent focus:ring-1 focus:ring-reef-accent/20 focus:outline-none transition-all duration-150"
+              className="w-full h-10 px-4 text-[13px] bg-reef-bg border border-reef-border rounded-lg text-reef-text-bright placeholder-reef-text-dim focus:border-reef-accent focus:ring-1 focus:ring-reef-accent/20 focus:outline-none transition-all duration-150"
             />
           </div>
 
@@ -179,33 +167,36 @@ export function SpawnModal({ open, onClose, onSpawn, spawning }: SpawnModalProps
               value={workdir}
               onChange={(e) => setWorkdir(e.target.value)}
               placeholder="/home/adam/project"
-              className="w-full h-10 px-4 text-sm bg-reef-bg border border-reef-border rounded-xl text-reef-text-bright placeholder-reef-text-dim focus:border-reef-accent focus:ring-1 focus:ring-reef-accent/20 focus:outline-none transition-all duration-150"
+              className="w-full h-10 px-4 text-[13px] bg-reef-bg border border-reef-border rounded-lg text-reef-text-bright placeholder-reef-text-dim focus:border-reef-accent focus:ring-1 focus:ring-reef-accent/20 focus:outline-none transition-all duration-150"
             />
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-4 border-t border-reef-border">
-          <span className="text-[10px] text-reef-text-muted">⌘+Enter to submit</span>
+          <span className="text-[11px] text-reef-text-muted">⌘+Enter to submit</span>
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="h-9 px-4 rounded-lg text-sm text-reef-text-dim hover:text-reef-text hover:bg-reef-border/30 transition-all duration-150"
+              className="h-10 px-4 rounded-lg text-[13px] text-reef-text-dim hover:text-reef-text hover:bg-reef-border/30 transition-all duration-150"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={!task.trim() || spawning}
-              className="h-9 px-5 rounded-lg bg-reef-accent text-white text-sm font-medium hover:bg-reef-accent-hover transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
+              className="h-10 px-5 rounded-lg bg-reef-accent text-white text-[13px] font-medium hover:bg-reef-accent-hover transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {spawning ? (
                 <>
-                  <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   Spawning...
                 </>
               ) : (
-                <>🐚 Spawn Agent</>
+                <>
+                  <Shell className="w-3.5 h-3.5" />
+                  Spawn Agent
+                </>
               )}
             </button>
           </div>

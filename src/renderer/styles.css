@@ -27,23 +27,23 @@
 
 /* ── Light theme ── */
 .light {
-  --reef-bg: #fafafa;
+  --reef-bg: #ffffff;
   --reef-bg-elevated: #ffffff;
-  --reef-sidebar: #f4f4f5;
-  --reef-border: #e4e4e7;
-  --reef-border-subtle: #f0f0f3;
-  --reef-accent: #0284c7;
-  --reef-accent-hover: #0369a1;
-  --reef-accent-muted: rgba(2, 132, 199, 0.1);
-  --reef-text: #52525b;
-  --reef-text-bright: #09090b;
-  --reef-text-dim: #a1a1aa;
-  --reef-text-muted: #d4d4d8;
-  --reef-user-bubble: rgba(2, 132, 199, 0.06);
-  --reef-user-border: rgba(2, 132, 199, 0.12);
-  --reef-assistant-bubble: #ffffff;
-  --reef-assistant-border: #e4e4e7;
-  --reef-tool-bg: #f8f8fa;
+  --reef-sidebar: #f8f9fa;
+  --reef-border: #d1d5db;
+  --reef-border-subtle: #e5e7eb;
+  --reef-accent: #0369a1;
+  --reef-accent-hover: #075985;
+  --reef-accent-muted: rgba(3, 105, 161, 0.08);
+  --reef-text: #374151;
+  --reef-text-bright: #111827;
+  --reef-text-dim: #6b7280;
+  --reef-text-muted: #9ca3af;
+  --reef-user-bubble: #f0f9ff;
+  --reef-user-border: #bae6fd;
+  --reef-assistant-bubble: #f9fafb;
+  --reef-assistant-border: #e5e7eb;
+  --reef-tool-bg: #f3f4f6;
 }
 
 * {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { ReefSession } from '../types'
+import { Search, Plus, Palette } from 'lucide-react'
+import { ProviderIcon } from './Icons'
 
 interface CommandPaletteProps {
   open: boolean
@@ -14,12 +16,10 @@ interface Command {
   id: string
   label: string
   description?: string
-  emoji?: string
+  icon: React.ReactNode
   category: 'session' | 'action'
   action: () => void
 }
-
-const AGENT_EMOJIS = ['🦖', '🔍', '🎨', '⚡', '🧪', '🐚', '🦀', '🌊', '🐙', '🦑']
 
 export function CommandPalette({
   open,
@@ -47,8 +47,8 @@ export function CommandPalette({
       {
         id: 'spawn',
         label: 'New Agent',
-        description: 'Spawn a new Pi agent',
-        emoji: '🦖',
+        description: 'Spawn a new AI agent',
+        icon: <Plus className="w-4 h-4 text-reef-accent" />,
         category: 'action',
         action: () => {
           onSpawnAgent()
@@ -59,7 +59,7 @@ export function CommandPalette({
         id: 'theme',
         label: 'Toggle Theme',
         description: 'Switch dark/light',
-        emoji: '🎨',
+        icon: <Palette className="w-4 h-4 text-reef-text-dim" />,
         category: 'action',
         action: () => {
           onToggleTheme()
@@ -73,7 +73,7 @@ export function CommandPalette({
         id: `session:${s.id}`,
         label: `agent-${i + 1}`,
         description: s.task,
-        emoji: AGENT_EMOJIS[i % AGENT_EMOJIS.length],
+        icon: <ProviderIcon provider={s.provider} className="w-4 h-4" />,
         category: 'session',
         action: () => {
           onSelectSession(s.id)
@@ -131,16 +131,7 @@ export function CommandPalette({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3 border-b border-reef-border">
-          <svg
-            className="w-4 h-4 text-reef-text-dim shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
+          <Search className="w-4 h-4 text-reef-text-dim shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -148,23 +139,23 @@ export function CommandPalette({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="Search agents, commands..."
-            className="flex-1 bg-transparent text-sm text-reef-text-bright placeholder-reef-text-dim focus:outline-none"
+            className="flex-1 bg-transparent text-[13px] text-reef-text-bright placeholder-reef-text-dim focus:outline-none"
           />
-          <kbd className="text-[10px] text-reef-text-muted bg-reef-border/50 px-1.5 py-0.5 rounded font-mono">
+          <kbd className="text-[11px] text-reef-text-muted bg-reef-border/50 px-1.5 py-0.5 rounded font-mono">
             ESC
           </kbd>
         </div>
 
         <div ref={listRef} className="max-h-80 overflow-y-auto py-1">
           {filtered.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-reef-text-dim">
-              No results for "{query}"
+            <div className="px-4 py-8 text-center text-[13px] text-reef-text-dim">
+              No results for &ldquo;{query}&rdquo;
             </div>
           )}
           {filtered.map((cmd, i) => (
             <div
               key={cmd.id}
-              className={`flex items-center gap-3 px-3 py-2 mx-1 rounded-lg cursor-pointer text-sm transition-colors duration-75 ${
+              className={`flex items-center gap-3 px-3 py-2.5 mx-1 rounded-lg cursor-pointer text-[13px] transition-colors duration-75 ${
                 i === selectedIndex
                   ? 'bg-reef-accent-muted text-reef-text-bright'
                   : 'text-reef-text hover:bg-reef-border/30'
@@ -172,7 +163,7 @@ export function CommandPalette({
               onClick={cmd.action}
               onMouseEnter={() => setSelectedIndex(i)}
             >
-              <span className="text-base w-6 text-center">{cmd.emoji}</span>
+              <span className="w-6 flex items-center justify-center">{cmd.icon}</span>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-[13px]">{cmd.label}</div>
                 {cmd.description && (
@@ -180,13 +171,13 @@ export function CommandPalette({
                 )}
               </div>
               {cmd.category === 'session' && (
-                <span className="text-[9px] text-reef-text-muted">session</span>
+                <span className="text-[11px] text-reef-text-muted">session</span>
               )}
             </div>
           ))}
         </div>
 
-        <div className="flex items-center gap-3 px-4 py-2 border-t border-reef-border text-[10px] text-reef-text-muted">
+        <div className="flex items-center gap-3 px-4 py-2 border-t border-reef-border text-[11px] text-reef-text-muted">
           <span>↑↓ navigate</span>
           <span>↵ select</span>
           <span>esc close</span>
