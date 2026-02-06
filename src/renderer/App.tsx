@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ReefSession } from './types'
 import { useReefApi } from './use-reef'
+import { useSessionStore } from './stores/session-store'
+import { useSettingsStore } from './stores/settings-store'
 import { TopBar } from './components/TopBar'
 import { Sidebar } from './components/Sidebar'
 import { SessionView } from './components/SessionView'
@@ -14,12 +15,20 @@ export function App() {
   const api = useReefApi()
   const { addToast } = useToast()
 
-  const [sessions, setSessions] = useState<ReefSession[]>([])
-  const [selectedSession, setSelectedSession] = useState<string | null>(null)
-  const [connected, setConnected] = useState(false)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
-  const [uptime, setUptime] = useState<number | undefined>()
-  const [loading, setLoading] = useState(true)
+  // Session store
+  const sessions = useSessionStore((s) => s.sessions)
+  const selectedSessionId = useSessionStore((s) => s.selectedSessionId)
+  const connected = useSessionStore((s) => s.connected)
+  const uptime = useSessionStore((s) => s.uptime)
+  const loading = useSessionStore((s) => s.loading)
+  const { setSessions, addSession, selectSession, setConnected, setUptime, setLoading } =
+    useSessionStore()
+
+  // Settings store
+  const theme = useSettingsStore((s) => s.theme)
+  const toggleTheme = useSettingsStore((s) => s.toggleTheme)
+
+  // Local UI state
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [spawnOpen, setSpawnOpen] = useState(false)
   const [spawning, setSpawning] = useState(false)
@@ -52,7 +61,7 @@ export function App() {
 
       if (statusResult.ok) {
         setConnected(true)
-        setUptime(statusResult.data?.uptime)
+        setUptime(statusResult.data?.uptime as number | undefined)
       } else {
         setConnected(false)
       }
@@ -64,7 +73,7 @@ export function App() {
       setConnected(false)
     }
     setLoading(false)
-  }, [api])
+  }, [api, setConnected, setUptime, setSessions, setLoading])
 
   // Initial load + polling
   useEffect(() => {
@@ -80,8 +89,8 @@ export function App() {
       try {
         const result = await api.spawn(task, opts)
         if (result.ok && result.data?.session) {
-          setSessions((prev) => [...prev, result.data!.session])
-          setSelectedSession(result.data.session.id)
+          addSession(result.data.session)
+          selectSession(result.data.session.id)
           setSpawnOpen(false)
           addToast(`Agent spawned: ${task.substring(0, 40)}`, 'success')
         } else {
@@ -92,14 +101,10 @@ export function App() {
       }
       setSpawning(false)
     },
-    [api, addToast]
+    [api, addToast, addSession, selectSession]
   )
 
-  const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
-  }, [])
-
-  const activeSession = sessions.find((s) => s.id === selectedSession)
+  const activeSession = sessions.find((s) => s.id === selectedSessionId)
   const activeSessionIndex = activeSession ? sessions.indexOf(activeSession) : -1
 
   return (
@@ -113,8 +118,8 @@ export function App() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           sessions={sessions}
-          selectedSession={selectedSession}
-          onSelectSession={setSelectedSession}
+          selectedSession={selectedSessionId}
+          onSelectSession={selectSession}
           onSpawnAgent={() => setSpawnOpen(true)}
           loading={loading}
         />
@@ -125,7 +130,7 @@ export function App() {
             <ActivityFeed
               sessions={sessions}
               connected={connected}
-              onSelectSession={setSelectedSession}
+              onSelectSession={selectSession}
               onSpawnAgent={() => setSpawnOpen(true)}
             />
           )}
@@ -139,7 +144,7 @@ export function App() {
         onClose={() => setPaletteOpen(false)}
         sessions={sessions}
         onSelectSession={(id) => {
-          setSelectedSession(id)
+          selectSession(id)
           setPaletteOpen(false)
         }}
         onToggleTheme={toggleTheme}
